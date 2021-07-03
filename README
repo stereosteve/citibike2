@@ -5,3 +5,10 @@ source venv/bin/activate
 pip install -r requirements.txt
 time python fixup.py
 
+time loadup.sh
+
+
+
+TODO:
+* combine user_type and member_casual?
+* duration column?
