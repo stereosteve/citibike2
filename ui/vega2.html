@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Vega-Lite Bar Chart</title>
+    <meta charset="utf-8" />
+
+    <script src="https://cdn.jsdelivr.net/npm/vega@5.20.2"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vega-lite@5.1.0"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vega-embed@6.17.0"></script>
+
+    <style media="screen">
+      /* Add space between Vega-Embed links  */
+      .vega-actions a {
+        margin-right: 5px;
+      }
+    </style>
+  </head>
+
+  <body>
+    <h1>Template for Embedding Vega-Lite Visualization</h1>
+    <!-- Container for the visualization -->
+    <div id="vis"></div>
+
+    <script>
+      const query = `
+        select
+          toYYYYMM(start_ts) as year_month,
+          count() as total,
+          countIf(member_casual = 'member' OR user_type = 'Subscriber') as member_count,
+          member_count / total as percent_member
+        from r2
+        group by year_month
+        order by year_month asc`;
+
+      // Assign the specification to a local variable vlSpec.
+      var vlSpec = {
+        $schema: "https://vega.github.io/schema/vega-lite/v5.json",
+        data: {
+          url: `/db?query=${query} format CSVWithNames`,
+          format: {
+            type: "csv",
+          },
+        },
+        mark: { type: "bar", tooltip: true },
+        encoding: {
+          x: { field: "year_month", type: "nominal" },
+        },
+        layer: [
+          {
+            mark: "bar",
+            encoding: {
+              y: { field: "total", type: "quantitative" },
+            },
+          },
+          {
+            mark: { type: "bar", color: "yellow", opacity: 0.5, tooltip: true },
+            encoding: {
+              y: { field: "member_count", type: "quantitative" },
+            },
+          },
+        ],
+      };
+
+      // Embed the visualization in the container with id `vis`
+      vegaEmbed("#vis", vlSpec);
+    </script>
+  </body>
+</html>
