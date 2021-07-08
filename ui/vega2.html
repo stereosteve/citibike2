@@ -17,16 +17,14 @@
   </head>
 
   <body>
-    <h1>Template for Embedding Vega-Lite Visualization</h1>
-    <!-- Container for the visualization -->
-    <div id="vis"></div>
 
+    <div id="vis"></div>
     <script>
       const query = `
         select
           toYYYYMM(start_ts) as year_month,
           count() as total,
-          countIf(member_casual = 'member' OR user_type = 'Subscriber') as member_count,
+          countIf(is_member = 1) as member_count,
           member_count / total as percent_member
         from r2
         group by year_month
@@ -63,6 +61,41 @@
 
       // Embed the visualization in the container with id `vis`
       vegaEmbed("#vis", vlSpec);
+    </script>
+
+
+    <div id="vis2"></div>
+    <script>
+      {
+
+        const query = `
+        select
+          toYYYYMM(start_ts) as year_month,
+          avg(duration) as avg_duration
+        from r2
+        where duration < 86400
+        group by year_month
+        order by year_month asc`;
+
+      // Assign the specification to a local variable vlSpec.
+      var vlSpec2 = {
+        $schema: "https://vega.github.io/schema/vega-lite/v5.json",
+        data: {
+          url: `/db?query=${encodeURIComponent(query)} format CSVWithNames`,
+          format: {
+            type: "csv",
+          },
+        },
+        mark: { type: "bar", tooltip: true },
+        encoding: {
+          x: { field: "year_month", type: "nominal" },
+          "y": {"field": "avg_duration", "type": "quantitative"}
+        }
+      };
+
+      // Embed the visualization in the container with id `vis`
+      vegaEmbed("#vis2", vlSpec2);
+      }
     </script>
   </body>
 </html>

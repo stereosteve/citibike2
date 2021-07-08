@@ -46,7 +46,7 @@ new_schema = {
 }
 
 
-def csv_to_parquet(infile):
+def csv_to_df(infile):
     header = pd.read_csv(infile, nrows=1)
     num_cols = len(header.columns)
 
@@ -68,19 +68,30 @@ def csv_to_parquet(infile):
     df.dropna(subset=['start_id', 'end_id'], inplace=True)
 
     if schema == old_schema:
-        df.user_type.fillna('', inplace=True)
         df.birth_year.fillna(0, inplace=True)
-        df.drop('duration', inplace=True, axis=1)
-        df['member_casual'] = ''
+        # df.drop('duration', inplace=True, axis=1)
+
+        df['is_member'] = df.user_type == 'Subscriber'
+        df.drop('user_type', inplace=True, axis=1)
+
         df['rideable_type'] = ''
         df['ride_id'] = ''
     else:
+        df['duration'] = (df.end_ts - df.start_ts).dt.total_seconds()
+
+        df['is_member'] = df.member_casual == 'member'
+        df.drop('member_casual', inplace=True, axis=1)
+
         df['bike_id'] = ''
         df['gender'] = ''
         df['birth_year'] = 0
         df['user_type'] = ''
 
+    return df
 
+
+def csv_to_parquet(infile):
+    df = csv_to_df(infile)
     d = df.start_ts.iloc[0]
     parquet_file = f'{out_dir}{d.date()}.parquet'
 

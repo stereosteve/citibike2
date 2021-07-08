@@ -1,16 +1,16 @@
-drop table r2;
+-- drop table r2;
 
-create table r2
+create or replace table r2
 (
     `bike_id` String,
     `rideable_type` LowCardinality(String),
 
-    `birth_year` UInt16,    
+    `birth_year` UInt16,
     `gender` LowCardinality(String),
-    `member_casual` LowCardinality(String),
-    `user_type` LowCardinality(String),
+    `is_member` Bool,
 
     `ride_id` String,
+    `duration` UInt32,
 
     `start_lat` Float64,
     `start_lng` Float64,
